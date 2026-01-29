@@ -3,7 +3,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Home, Search, Plus, MoreVertical, Check, Trash2, User as UserIcon, Mail, Shield } from 'lucide-react';
 
-export default function Index({ users, filters }) {
+export default function Index({ users, filters, auth }) {
     const [search, setSearch] = useState(filters.search || '');
     const [selectedIds, setSelectedIds] = useState([]);
 
@@ -151,18 +151,22 @@ export default function Index({ users, filters }) {
                                             </td>
                                             <td className="pr-7 py-5 text-right">
                                                 <div className="flex items-center justify-end gap-3">
-                                                    <Link
-                                                        href={route('admin.users.edit', user.id)}
-                                                        className="h-[36px] inline-flex items-center bg-white border border-[#e3e4e8] text-[#2f3344] px-4 rounded-[6px] font-bold text-[13px] hover:border-[#673ab7] hover:text-[#673ab7] transition-all"
-                                                    >
-                                                        Manage
-                                                    </Link>
-                                                    <button 
-                                                        onClick={() => handleDelete(user.id)}
-                                                        className="w-8 h-8 flex items-center justify-center text-[#727586] hover:bg-red-50 hover:text-red-500 rounded-lg transition-all"
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
+                                                    {auth.user.permissions.includes('users.edit') && (
+                                                        <Link
+                                                            href={route('admin.users.edit', user.id)}
+                                                            className="h-[36px] inline-flex items-center bg-white border border-[#e3e4e8] text-[#2f3344] px-4 rounded-[6px] font-bold text-[13px] hover:border-[#673ab7] hover:text-[#673ab7] transition-all"
+                                                        >
+                                                            Manage
+                                                        </Link>
+                                                    )}
+                                                    {auth.user.permissions.includes('users.delete') && (
+                                                        <button 
+                                                            onClick={() => handleDelete(user.id)}
+                                                            className="w-8 h-8 flex items-center justify-center text-[#727586] hover:bg-red-50 hover:text-red-500 rounded-lg transition-all"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

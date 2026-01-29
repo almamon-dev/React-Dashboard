@@ -25,11 +25,13 @@ Route::middleware('auth')->group(function () {
 
     // Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-        Route::resource('permissions', \App\Http\Controllers\Admin\PermissionController::class);
-        Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
-        Route::get('sub-categories', [\App\Http\Controllers\Admin\CategoryController::class, 'subCategories'])->name('sub-categories.index');
+        Route::middleware(['can:roles.view'])->resource('roles', \App\Http\Controllers\Admin\RoleController::class);
+        Route::middleware(['can:users.view'])->resource('users', \App\Http\Controllers\Admin\UserController::class);
+        Route::middleware(['can:permissions.view'])->resource('permissions', \App\Http\Controllers\Admin\PermissionController::class);
+        Route::middleware(['can:categories.view'])->group(function() {
+            Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+            Route::get('sub-categories', [\App\Http\Controllers\Admin\CategoryController::class, 'subCategories'])->name('sub-categories.index');
+        });
     });
 });
 

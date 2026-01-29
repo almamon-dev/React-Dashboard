@@ -8,8 +8,10 @@ import {
 
 const Sidebar = ({ isCollapsed, toggleCollapse }) => {
     const { url, props } = usePage();
-    const { sidebarCategories = [] } = props;
+    const { sidebarCategories = [], auth } = props;
     const currentPath = url.split("?")[0];
+    const userPermissions = auth.user?.permissions || [];
+
     const [openMenus, setOpenMenus] = useState(() => {
         // Initialize open menus based on current path
         if (currentPath.startsWith('/admin/categories') || currentPath.startsWith('/admin/sub-categories') || currentPath.startsWith('/admin/blogs')) {
@@ -45,9 +47,9 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
             icon: <LayoutGrid />, 
             key: "content",
             children: [
-                { label: "Categories", path: "/admin/categories", icon: <LayoutGrid size={16} />, route: "admin.categories.*" },
-                { label: "Subcategories", path: "/admin/sub-categories", icon: <FolderTree size={16} />, route: "admin.sub-categories.*" },
-                { label: "Blogs", path: "/admin/blogs", icon: <Mail size={16} />, route: "admin.blogs.*" },
+                { label: "Categories", path: "/admin/categories", icon: <LayoutGrid size={16} />, route: "admin.categories.*", permission: "categories.view" },
+                { label: "Subcategories", path: "/admin/sub-categories", icon: <FolderTree size={16} />, route: "admin.sub-categories.*", permission: "categories.view" },
+                { label: "Blogs", path: "/admin/blogs", icon: <Mail size={16} />, route: "admin.blogs.*", permission: "blogs.view" },
             ]
         },
         { 
@@ -55,13 +57,27 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
             icon: <Users />, 
             key: "account",
             children: [
-                { label: "Users", path: "/admin/users", icon: <Users size={16} />, route: "admin.users.*" },
-                { label: "Account Sharing", path: "/admin/roles", icon: <ShieldCheck size={16} />, route: "admin.roles.*" },
-                { label: "Permissions", path: "/admin/permissions", icon: <ShieldCheck size={16} />, route: "admin.permissions.*" },
+                { label: "Users", path: "/admin/users", icon: <Users size={16} />, route: "admin.users.*", permission: "users.view" },
+                { label: "Account Sharing", path: "/admin/roles", icon: <ShieldCheck size={16} />, route: "admin.roles.*", permission: "roles.view" },
+                { label: "Permissions", path: "/admin/permissions", icon: <ShieldCheck size={16} />, route: "admin.permissions.*", permission: "permissions.view" },
             ]
         },
         { label: "All services", path: "/admin/services", icon: <Store />, route: "services.*" },
     ];
+
+    const hasPermission = (permission) => {
+        if (!permission) return true;
+        return userPermissions.includes(permission);
+    };
+
+    const filteredMenuItems = menuItems.map(item => {
+        if (item.children) {
+            const filteredChildren = item.children.filter(child => hasPermission(child.permission));
+            if (filteredChildren.length === 0) return null;
+            return { ...item, children: filteredChildren };
+        }
+        return hasPermission(item.permission) ? item : null;
+    }).filter(Boolean);
 
     const checkActive = (item) => {
         if (typeof route !== 'undefined' && item.route) {
@@ -95,7 +111,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
 
             {/* Navigation */}
             <nav className="flex-1 flex flex-col pt-4 overflow-y-auto no-scrollbar px-2 space-y-1">
-                {menuItems.map((item) => {
+                {filteredMenuItems.map((item) => {
                     const active = checkActive(item);
                     const isOpen = openMenus[item.key];
                     

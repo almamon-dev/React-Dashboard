@@ -7,7 +7,7 @@ import {
     ChevronDown, ChevronLeft, ChevronRight,ArrowUpDown 
 } from 'lucide-react';
 
-export default function Index({ categories, filters, isSubCategoryView = false }) {
+export default function Index({ categories, filters = {}, auth, isSubCategoryView = false }) {
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status !== undefined ? (filters.status === '1' ? 'active' : (filters.status === '0' ? 'inactive' : 'all')) : 'all');
     const [selectedIds, setSelectedIds] = useState([]);
@@ -73,13 +73,15 @@ export default function Index({ categories, filters, isSubCategoryView = false }
                             <span>{isSubCategoryView ? "Subcategory portfolio" : "Category portfolio"}</span>
                         </div>
                     </div>
-                    <Link
-                        href={route('admin.categories.create')}
-                        className="inline-flex items-center bg-[#673ab7] text-white px-5 py-[10px] rounded-[8px] font-bold text-[14px] hover:bg-[#5e35b1] transition-all shadow-sm"
-                    >
-                        <Plus size={18} className="mr-2" />
-                        Add new {isSubCategoryView ? 'subcategory' : 'category'}
-                    </Link>
+                    {auth.user.permissions.includes('categories.create') && (
+                        <Link
+                            href={route('admin.categories.create')}
+                            className="inline-flex items-center bg-[#673ab7] text-white px-5 py-[10px] rounded-[8px] font-bold text-[14px] hover:bg-[#5e35b1] transition-all shadow-sm"
+                        >
+                            <Plus size={18} className="mr-2" />
+                            Add new {isSubCategoryView ? 'subcategory' : 'category'}
+                        </Link>
+                    )}
                 </div>
 
                 {/* Promo Banner - Matching Image */}
@@ -262,14 +264,16 @@ export default function Index({ categories, filters, isSubCategoryView = false }
                                                     {isSubCategoryView ? (category.parent ? category.parent.name : 'Unknown') : category.slug}
                                                 </span>
                                             </td>
-                                            <td className="pr-7 py-5">
+                                            <td className="pr-7 py-5 text-right">
                                                 <div className="flex items-center justify-end gap-3">
-                                                    <Link
-                                                        href={route('admin.categories.edit', category.id)}
-                                                        className="h-[36px] inline-flex items-center bg-white border border-[#e3e4e8] text-[#2f3344] px-4 rounded-[6px] font-bold text-[13px] hover:border-[#673ab7] hover:text-[#673ab7] transition-all active:scale-[0.98]"
-                                                    >
-                                                        Manage
-                                                    </Link>
+                                                    {auth.user.permissions.includes('categories.edit') && (
+                                                        <Link
+                                                            href={route('admin.categories.edit', category.id)}
+                                                            className="h-[36px] inline-flex items-center bg-white border border-[#e3e4e8] text-[#2f3344] px-4 rounded-[6px] font-bold text-[13px] hover:border-[#673ab7] hover:text-[#673ab7] transition-all"
+                                                        >
+                                                            Manage
+                                                        </Link>
+                                                    )}
                                                     <button className="w-8 h-8 flex items-center justify-center text-[#727586] hover:bg-[#f4f0ff] hover:text-[#673ab7] rounded-lg transition-all">
                                                         <MoreVertical size={18} />
                                                     </button>

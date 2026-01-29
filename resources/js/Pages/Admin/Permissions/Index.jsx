@@ -7,7 +7,7 @@ import {
     ChevronDown, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
-export default function Index({ permissions, filters = {} }) {
+export default function Index({ permissions, filters = {}, auth }) {
     const [search, setSearch] = useState(filters.search || '');
     const [selectedIds, setSelectedIds] = useState([]);
     const [showPromo, setShowPromo] = useState(true);
@@ -60,13 +60,15 @@ export default function Index({ permissions, filters = {} }) {
                             <span>Permission portfolio</span>
                         </div>
                     </div>
-                    <Link
-                        href={route('admin.permissions.create')}
-                        className="inline-flex items-center bg-[#673ab7] text-white px-5 py-[10px] rounded-[8px] font-bold text-[14px] hover:bg-[#5e35b1] transition-all shadow-sm"
-                    >
-                        <Plus size={18} className="mr-2" />
-                        Add new permission
-                    </Link>
+                    {auth.user.permissions.includes('permissions.create') && (
+                        <Link
+                            href={route('admin.permissions.create')}
+                            className="inline-flex items-center bg-[#673ab7] text-white px-5 py-[10px] rounded-[8px] font-bold text-[14px] hover:bg-[#5e35b1] transition-all shadow-sm"
+                        >
+                            <Plus size={18} className="mr-2" />
+                            Add new permission
+                        </Link>
+                    )}
                 </div>
 
                 {/* Promo Banner */}
@@ -185,12 +187,14 @@ export default function Index({ permissions, filters = {} }) {
                                             </td>
                                             <td className="pr-7 py-5 text-right">
                                                 <div className="flex items-center justify-end gap-3">
-                                                    <Link
-                                                        href={route('admin.permissions.edit', permission.id)}
-                                                        className="h-[36px] inline-flex items-center bg-white border border-[#e3e4e8] text-[#2f3344] px-4 rounded-[6px] font-bold text-[13px] hover:border-[#673ab7] hover:text-[#673ab7] transition-all"
-                                                    >
-                                                        Manage
-                                                    </Link>
+                                                    {auth.user.permissions.includes('permissions.edit') && (
+                                                        <Link
+                                                            href={route('admin.permissions.edit', permission.id)}
+                                                            className="h-[36px] inline-flex items-center bg-white border border-[#e3e4e8] text-[#2f3344] px-4 rounded-[6px] font-bold text-[13px] hover:border-[#673ab7] hover:text-[#673ab7] transition-all"
+                                                        >
+                                                            Manage
+                                                        </Link>
+                                                    )}
                                                     <button className="w-8 h-8 flex items-center justify-center text-[#727586] hover:bg-[#f4f0ff] hover:text-[#673ab7] rounded-lg transition-all">
                                                         <MoreVertical size={18} />
                                                     </button>

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { 
     Home, Globe, LayoutGrid, Waves, Mail, 
     Cloud, CreditCard, Store, ChevronRight, ChevronsLeft,
-    Settings, ShieldCheck, DollarSign, Cog, Users, FolderTree
+    Settings, ShieldCheck, DollarSign, Cog, Users, FolderTree,
+    Smartphone, Monitor, CircleDollarSign, Hexagon, LogOut, User
 } from "lucide-react";
 
 const Sidebar = ({ isCollapsed, toggleCollapse }) => {
@@ -23,10 +24,118 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
         if (currentPath.startsWith('/admin/billing')) {
             return { billing: true };
         }
+        if (currentPath.startsWith('/admin/settings/website')) {
+            return { website: true };
+        }
+        if (currentPath.startsWith('/admin/settings/general')) {
+            return { general: true };
+        }
+        if (currentPath.startsWith('/admin/settings/system')) {
+            return { system: true };
+        }
+        if (currentPath.startsWith('/admin/settings/financial')) {
+            return { financial: true };
+        }
+        if (currentPath.startsWith('/admin/settings/other')) {
+            return { other: true };
+        }
         return {};
     });
 
-    const menuItems = [
+    const menuGroups = [
+        {
+            title: "Pages",
+            items: [
+                { label: "Profile", path: "/profile", icon: <User />, route: "profile.*" },
+                { 
+                    label: "Authentication", 
+                    icon: <ShieldCheck />, 
+                    key: "auth",
+                    children: [
+                        { label: "Login", path: "/login" },
+                        { label: "Register", path: "/register" },
+                    ]
+                },
+                { 
+                    label: "Error Pages", 
+                    icon: <Mail />, 
+                    key: "errors",
+                    children: [
+                        { label: "404", path: "/404" },
+                        { label: "500", path: "/500" },
+                    ]
+                },
+                { label: "Blank Page", path: "/blank", icon: <Mail />, route: "blank" },
+                { label: "Pricing", path: "/pricing", icon: <DollarSign />, route: "pricing" },
+                { label: "Coming Soon", path: "/coming-soon", icon: <Mail />, route: "coming-soon" },
+                { label: "Under Maintenance", path: "/maintenance", icon: <Mail />, route: "maintenance" },
+            ]
+        },
+        {
+            title: "Settings",
+            items: [
+                { 
+                    label: "General Settings", 
+                    icon: <Settings />, 
+                    key: "general",
+                    children: [
+                        { label: "Profile", path: route('admin.settings.general.profile') },
+                        { label: "Security", path: route('admin.settings.general.security') },
+                        { label: "Notifications", path: route('admin.settings.general.notifications') },
+                    ]
+                },
+                { 
+                    label: "Website Settings", 
+                    icon: <Globe />, 
+                    key: "website",
+                    children: [
+                        { label: "System Settings", path: route('admin.settings.website.system') },
+                        { label: "Company Settings", path: route('admin.settings.website.company') },
+                        { label: "Localization", path: route('admin.settings.website.localization') },
+                        { label: "Prefixes", path: route('admin.settings.website.prefixes') },
+                        { label: "Preference", path: route('admin.settings.website.preference') },
+                        { label: "Appearance", path: route('admin.settings.website.appearance') },
+                        { label: "Social Authentication", path: route('admin.settings.website.social-auth') },
+                        { label: "Language", path: route('admin.settings.website.language') },
+                    ]
+                },
+                { 
+                    label: "System Settings", 
+                    icon: <Monitor />, 
+                    key: "system",
+                    children: [
+                        { label: "Email", path: route('admin.settings.system.email') },
+                        { label: "SMS", path: route('admin.settings.system.sms') },
+                        { label: "OTP", path: route('admin.settings.system.otp') },
+                        { label: "GDPR Cookies", path: route('admin.settings.system.gdpr') },
+                    ]
+                },
+                { 
+                    label: "Financial Settings", 
+                    icon: <CircleDollarSign />, 
+                    key: "financial",
+                    children: [
+                        { label: "Payment Gateway", path: route('admin.settings.financial.gateway') },
+                        { label: "Bank Accounts", path: route('admin.settings.financial.bank-accounts') },
+                        { label: "Tax Rates", path: route('admin.settings.financial.tax-rates') },
+                        { label: "Currencies", path: route('admin.settings.financial.currencies') },
+                    ]
+                },
+                { 
+                    label: "Other Settings", 
+                    icon: <Hexagon />, 
+                    key: "other",
+                    children: [
+                        { label: "Storage", path: route('admin.settings.other.storage') },
+                        { label: "Ban IP Address", path: route('admin.settings.other.ban-ip') },
+                    ]
+                },
+                { label: "Logout", path: "/logout", icon: <LogOut />, method: "post" },
+            ]
+        }
+    ];
+
+    const legacyMenuItems = [
         { label: "Home", path: "/dashboard", icon: <Home />, route: "dashboard" },
         { label: "Websites", path: "/admin/websites", icon: <LayoutGrid />, route: "websites.*" },
         { label: "Domains", path: "/admin/domains", icon: <Globe />, route: "domains.*" },
@@ -70,20 +179,146 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
         return userPermissions.includes(permission);
     };
 
-    const filteredMenuItems = menuItems.map(item => {
-        if (item.children) {
-            const filteredChildren = item.children.filter(child => hasPermission(child.permission));
-            if (filteredChildren.length === 0) return null;
-            return { ...item, children: filteredChildren };
-        }
-        return hasPermission(item.permission) ? item : null;
-    }).filter(Boolean);
+    const getFilteredItems = (items) => {
+        return items.map(item => {
+            if (item.children) {
+                const filteredChildren = item.children.filter(child => hasPermission(child.permission));
+                if (filteredChildren.length === 0) return null;
+                return { ...item, children: filteredChildren };
+            }
+            return hasPermission(item.permission) ? item : null;
+        }).filter(Boolean);
+    };
+
+    const filteredMenuGroups = menuGroups.map(group => ({
+        ...group,
+        items: getFilteredItems(group.items)
+    })).filter(group => group.items.length > 0);
+
+    const filteredLegacyItems = getFilteredItems(legacyMenuItems);
 
     const checkActive = (item) => {
         if (typeof route !== 'undefined' && item.route) {
             if (route().current(item.route)) return true;
         }
         return currentPath === item.path;
+    };
+
+    const renderMenuItem = (item) => {
+        const active = checkActive(item);
+        const isOpen = openMenus[item.key];
+        const isLogout = item.label === "Logout";
+        
+        const content = (
+            <>
+                {/* Icon */}
+                <div className={`${isCollapsed ? 'mb-1' : 'mr-3'} transition-transform duration-200 group-hover:scale-110 ${active || isOpen ? 'text-[#0a66c2]' : 'text-slate-400 group-hover:text-[#0a66c2]'}`}>
+                    {React.cloneElement(item.icon, { 
+                        size: isCollapsed ? 24 : 18, 
+                        strokeWidth: active || isOpen ? 2 : 1.5 
+                    })}
+                </div>
+
+                {/* Label */}
+                {!isCollapsed && (
+                    <span className={`font-medium leading-tight transition-all duration-300 text-[14px] flex-1 text-left
+                        ${active || isOpen ? 'text-[#0a66c2]' : 'text-slate-600'}`}>
+                        {item.label}
+                    </span>
+                )}
+
+                {/* Chevron for expandable or just as a visual guide */}
+                {!isCollapsed && !isLogout && (
+                    <ChevronRight 
+                        size={14} 
+                        className={`transition-all duration-200 text-slate-300 group-hover:text-slate-500 ${isOpen ? 'rotate-90' : ''} ${item.children ? '' : 'opacity-60'}`}
+                    />
+                )}
+
+                {/* Tooltip for Collapsed State */}
+                {isCollapsed && (
+                    <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                        {item.label}
+                    </div>
+                )}
+            </>
+        );
+
+        if (item.children) {
+            return (
+                <div key={item.label}>
+                    <button
+                        onClick={() => setOpenMenus(prev => ({ ...prev, [item.key]: !prev[item.key] }))}
+                        className={`w-full flex transition-all duration-200 group relative rounded-lg
+                            ${isCollapsed 
+                                ? 'flex-col items-center justify-center py-4 px-1' 
+                                : 'flex-row items-center py-2.5 px-4'}
+                            ${active || isOpen
+                                ? 'bg-[#0a66c2]/5 text-[#0a66c2]' 
+                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
+                    >
+                        {content}
+                    </button>
+
+                    {/* Sub-menu items */}
+                    {!isCollapsed && isOpen && (
+                        <div className="ml-4 mt-1">
+                            {item.children.map(child => (
+                                <Link
+                                    key={child.label}
+                                    href={child.path}
+                                    className={`flex items-center gap-3 py-2 px-3 rounded-lg text-[13px] transition-all hover:bg-slate-50
+                                        ${(currentPath === child.path || (child.route && typeof route !== 'undefined' && route().current(child.route))) ? 'text-[#0a66c2] bg-[#0a66c2]/5 font-semibold' : 'text-slate-500'}`}
+                                >
+                                    {child.icon ? (
+                                        React.cloneElement(child.icon, { size: 14 })
+                                    ) : (
+                                        <div className={`w-1 h-1 rounded-full ${currentPath === child.path ? 'bg-[#0a66c2]' : 'bg-slate-300'}`} />
+                                    )}
+                                    <span>{child.label}</span>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        if (item.method === "post") {
+            return (
+                <Link
+                    key={item.label}
+                    href={item.path}
+                    method="post"
+                    as="button"
+                    className={`w-full flex transition-all duration-200 group relative rounded-lg
+                        ${isCollapsed 
+                            ? 'flex-col items-center justify-center py-4 px-1' 
+                            : 'flex-row items-center py-2.5 px-4'}
+                        ${active 
+                            ? 'bg-[#0a66c2]/5 text-[#0a66c2]' 
+                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
+                >
+                    {content}
+                </Link>
+            );
+        }
+
+        return (
+            <Link
+                key={item.label}
+                href={item.path}
+                className={`w-full flex transition-all duration-200 group relative rounded-lg
+                    ${isCollapsed 
+                        ? 'flex-col items-center justify-center py-4 px-1' 
+                        : 'flex-row items-center py-2.5 px-4'}
+                    ${active 
+                        ? 'bg-[#0a66c2]/5 text-[#0a66c2]' 
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
+            >
+                {content}
+            </Link>
+        );
     };
 
     return (
@@ -99,7 +334,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
 
             {/* Logo Section */}
             <div className={`h-[70px] flex items-center px-6 transition-all duration-300 ${isCollapsed ? 'justify-center px-0' : 'justify-start'}`}>
-                <div className="min-w-[35px] w-[35px] h-[35px] bg-[#673ab7] rounded-lg flex items-center justify-center text-white shadow-sm">
+                <div className="min-w-[35px] w-[35px] h-[35px] bg-[#0a66c2] rounded-lg flex items-center justify-center text-white shadow-sm">
                     <Cloud size={20} fill="currentColor" />
                 </div>
                 {!isCollapsed && (
@@ -110,113 +345,27 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 flex flex-col pt-4 overflow-y-auto no-scrollbar px-2 space-y-1">
-                {filteredMenuItems.map((item) => {
-                    const active = checkActive(item);
-                    const isOpen = openMenus[item.key];
-                    
-                    // If item has children (nested menu)
-                    if (item.children) {
-                        return (
-                            <div key={item.label}>
-                                <button
-                                    onClick={() => setOpenMenus(prev => ({ ...prev, [item.key]: !prev[item.key] }))}
-                                    className={`w-full flex transition-all duration-200 group relative rounded-xl
-                                        ${isCollapsed 
-                                            ? 'flex-col items-center justify-center py-4 px-1' 
-                                            : 'flex-row items-center py-3 px-4'}
-                                        ${active || isOpen
-                                            ? 'bg-[#673ab7]/10 text-[#673ab7]' 
-                                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
-                                >
-                                    {/* Icon */}
-                                    <div className={`${isCollapsed ? 'mb-1' : 'mr-3'} transition-transform duration-200 group-hover:scale-110`}>
-                                        {React.cloneElement(item.icon, { 
-                                            size: isCollapsed ? 24 : 20, 
-                                            strokeWidth: active || isOpen ? 2 : 1.5 
-                                        })}
-                                    </div>
+            <nav className="flex-1 flex flex-col pt-4 overflow-y-auto no-scrollbar px-2">
+                {/* Legacy Items */}
+                <div className="space-y-1 mb-6">
+                    {filteredLegacyItems.map((item) => renderMenuItem(item))}
+                </div>
 
-                                    {/* Label */}
-                                    <span className={`font-medium leading-tight transition-all duration-300
-                                        ${isCollapsed ? 'text-[10px] text-center' : 'text-[14px] flex-1 text-left'}
-                                        ${active || isOpen ? 'text-[#673ab7]' : 'text-slate-600'}`}>
-                                        {item.label}
-                                    </span>
-
-                                    {/* Chevron for expandable */}
-                                    {!isCollapsed && (
-                                        <ChevronRight 
-                                            size={16} 
-                                            className={`transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}
-                                        />
-                                    )}
-
-                                    {/* Tooltip for Collapsed State */}
-                                    {isCollapsed && (
-                                        <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                                            {item.label}
-                                        </div>
-                                    )}
-                                </button>
-
-                                {/* Sub-menu items */}
-                                {!isCollapsed && isOpen && (
-                                    <div className="ml-4 mt-1 space-y-0.5 pl-3">
-                                        {item.children.map(child => (
-                                            <Link
-                                                key={child.label}
-                                                href={child.path}
-                                                className={`flex items-center gap-3 py-2.5 px-3 rounded-lg text-[13px] transition-all hover:bg-slate-50
-                                                    ${(currentPath === child.path || (child.route && typeof route !== 'undefined' && route().current(child.route))) ? 'text-[#673ab7] bg-[#673ab7]/5 font-semibold' : 'text-slate-600'}`}
-                                            >
-                                                {child.icon}
-                                                <span>{child.label}</span>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
+                {/* Sectioned Navigation */}
+                {filteredMenuGroups.map((group) => (
+                    <div key={group.title} className="mb-6">
+                        {!isCollapsed && (
+                            <div className="px-4 py-2 border-t border-slate-100 mt-2 mb-1">
+                                <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                    {group.title}
+                                </h3>
                             </div>
-                        );
-                    }
-
-                    // Regular menu item (no children)
-                    return (
-                        <Link
-                            key={item.label}
-                            href={item.path}
-                            className={`flex transition-all duration-200 group relative rounded-xl
-                                ${isCollapsed 
-                                    ? 'flex-col items-center justify-center py-4 px-1' 
-                                    : 'flex-row items-center py-3 px-4'}
-                                ${active 
-                                    ? 'bg-[#673ab7]/10 text-[#673ab7]' 
-                                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
-                        >
-                            {/* Icon */}
-                            <div className={`${isCollapsed ? 'mb-1' : 'mr-3'} transition-transform duration-200 group-hover:scale-110`}>
-                                {React.cloneElement(item.icon, { 
-                                    size: isCollapsed ? 24 : 20, 
-                                    strokeWidth: active ? 2 : 1.5 
-                                })}
-                            </div>
-
-                            {/* Label */}
-                            <span className={`font-medium leading-tight transition-all duration-300
-                                ${isCollapsed ? 'text-[10px] text-center' : 'text-[14px]'}
-                                ${active ? 'text-[#673ab7]' : 'text-slate-600'}`}>
-                                {item.label}
-                            </span>
-
-                            {/* Tooltip for Collapsed State */}
-                            {isCollapsed && (
-                                <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                                    {item.label}
-                                </div>
-                            )}
-                        </Link>
-                    );
-                })}
+                        )}
+                        <div className="space-y-1">
+                            {group.items.map((item) => renderMenuItem(item))}
+                        </div>
+                    </div>
+                ))}
             </nav>
         </div>
     );

@@ -58,7 +58,7 @@ const Header = ({ onMenuClick }) => {
                 
                 {/* Utility Icons */}
                 <div className="flex items-center gap-1 border-r border-slate-100 pr-2 mr-2">
-                     <Link 
+                    <Link 
                         href="/" 
                         className="w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-50 hover:text-[#0a66c2] rounded-xl transition-all" 
                         title="Frontend"
@@ -105,9 +105,9 @@ const Header = ({ onMenuClick }) => {
                             </div>
 
                             <div className="p-2">
-                                <DropdownLink icon={Settings} label="System Settings" />
-                                <DropdownLink icon={CreditCard} label="Billing Details" />
-                                <DropdownLink icon={Globe} label="Region & Language" />
+                                <DropdownLink icon={Settings} label="System Settings" href={route('admin.settings.website.system')} />
+                                <DropdownLink icon={CreditCard} label="Billing Details" href="#" />
+                                <DropdownLink icon={Globe} label="Region & Language" href={route('admin.settings.website.localization')} />
                             </div>
 
                             <div className="p-2 border-t border-slate-50 bg-slate-50/30">
@@ -127,11 +127,14 @@ const Header = ({ onMenuClick }) => {
     );
 };
 
-const DropdownLink = ({ icon: Icon, label }) => (
-    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all font-semibold group">
+const DropdownLink = ({ icon: Icon, label, href }) => (
+    <Link 
+        href={href}
+        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all font-semibold group"
+    >
         <Icon size={17} className="text-slate-400 group-hover:text-[#0a66c2] transition-colors" />
         <span>{label}</span>
-    </button>
+    </Link>
 );
 
 export default Header;

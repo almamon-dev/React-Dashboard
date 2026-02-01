@@ -4,13 +4,26 @@ import { Head, Link, router } from '@inertiajs/react';
 import { 
     Home, MoreVertical, Plus, ShieldCheck, 
     Search, X, Check, AlertCircle, Trash2,
-    ChevronDown, ChevronLeft, ChevronRight
+    ChevronDown, ChevronLeft, ChevronRight, SquarePen
 } from 'lucide-react';
+
+import DeleteModal from '@/Components/Admin/DeleteModal';
 
 export default function Index({ roles, filters = {}, auth }) {
     const [search, setSearch] = useState(filters.search || '');
     const [selectedIds, setSelectedIds] = useState([]);
     const [showPromo, setShowPromo] = useState(true);
+    const [deleteState, setDeleteState] = useState({ isOpen: false, id: null });
+
+    const handleDelete = (id) => {
+        setDeleteState({ isOpen: true, id });
+    };
+
+    const confirmDelete = () => {
+        router.delete(route('admin.roles.destroy', deleteState.id), {
+            onSuccess: () => setDeleteState({ isOpen: false, id: null }),
+        });
+    };
 
     const handleSearch = (value) => {
         setSearch(value);
@@ -178,18 +191,26 @@ export default function Index({ roles, filters = {}, auth }) {
                                                 </span>
                                             </td>
                                             <td className="pr-7 py-5 text-right">
-                                                <div className="flex items-center justify-end gap-3">
+                                                <div className="flex items-center justify-end gap-2">
                                                     {auth.user.permissions.includes('roles.edit') && (
                                                         <Link
                                                             href={route('admin.roles.edit', role.id)}
-                                                            className="h-[36px] inline-flex items-center bg-white border border-[#e3e4e8] text-[#2f3344] px-4 rounded-[6px] font-bold text-[13px] hover:border-[#673ab7] hover:text-[#673ab7] transition-all"
+                                                            className="w-[32px] h-[32px] flex items-center justify-center rounded-[6px] text-[#2f3344] bg-[#f1f3f5] hover:bg-[#673ab7] hover:text-white transition-all shadow-sm border border-transparent hover:border-[#673ab7]"
+                                                            title="Edit Role"
                                                         >
-                                                            Manage
+                                                            <SquarePen size={16} />
                                                         </Link>
                                                     )}
-                                                    <button className="w-8 h-8 flex items-center justify-center text-[#727586] hover:bg-[#f4f0ff] hover:text-[#673ab7] rounded-lg transition-all">
-                                                        <MoreVertical size={18} />
-                                                    </button>
+                                                    
+                                                    {auth.user.permissions.includes('roles.delete') && (
+                                                        <button 
+                                                            onClick={() => handleDelete(role.id)}
+                                                            className="w-[32px] h-[32px] flex items-center justify-center rounded-[6px] text-[#ef4444] bg-[#fee2e2]/50 hover:bg-[#ef4444] hover:text-white transition-all shadow-sm border border-transparent hover:border-[#ef4444]"
+                                                            title="Delete Role"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>
@@ -269,6 +290,14 @@ export default function Index({ roles, filters = {}, auth }) {
                         </div>
                     </div>
                 )}
+
+                <DeleteModal
+                    isOpen={deleteState.isOpen}
+                    onClose={() => setDeleteState({ isOpen: false, id: null })}
+                    onConfirm={confirmDelete}
+                    title="Delete Role"
+                    message="Are you sure you want to delete this role? Users assigned to this role will lose their permissions."
+                />
             </div>
         </AdminLayout>
     );

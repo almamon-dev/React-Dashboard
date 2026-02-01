@@ -25,9 +25,11 @@ export default function Edit({ permission }) {
                     <div className="flex items-center gap-4">
                         <h1 className="text-[24px] font-bold text-[#2f3344] tracking-tight">Permissions</h1>
                         <div className="flex items-center gap-2 text-[13px] text-[#727586] mt-1">
-                            <Home size={16} />
+                            <Link href={route('dashboard')} className="hover:text-[#673ab7] transition-colors"><Home size={16} /></Link>
                             <span className="text-[#c3c4ca]">-</span>
-                            <span>Account Sharing</span>
+                            <span>Account</span>
+                            <span className="text-[#c3c4ca]">-</span>
+                            <Link href={route('admin.permissions.index')} className="hover:text-[#673ab7] transition-colors font-medium">Permissions</Link>
                             <span className="text-[#c3c4ca]">-</span>
                             <span>Edit Permission</span>
                         </div>
@@ -100,7 +102,7 @@ export default function Edit({ permission }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="bg-[#2c8af8] text-white px-[40px] py-[12px] rounded-[6px] font-bold text-[14px] hover:bg-[#1a7ae8] transition-all shadow-sm active:scale-[0.98] disabled:opacity-50"
+                                className="bg-[#673ab7] text-white px-[40px] py-[12px] rounded-[6px] font-bold text-[14px] hover:bg-[#5e35b1] transition-all shadow-sm active:scale-[0.98] disabled:opacity-50"
                             >
                                 {processing ? 'Saving...' : 'Save'}
                             </button>

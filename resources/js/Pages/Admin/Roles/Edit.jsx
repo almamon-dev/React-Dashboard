@@ -52,9 +52,11 @@ export default function Edit({ role, permissions }) {
                     <div className="flex items-center gap-4">
                         <h1 className="text-[24px] font-bold text-[#2f3344] tracking-tight">Roles</h1>
                         <div className="flex items-center gap-2 text-[13px] text-[#727586] mt-1">
-                            <Home size={16} />
+                            <Link href={route('dashboard')} className="hover:text-[#673ab7] transition-colors"><Home size={16} /></Link>
                             <span className="text-[#c3c4ca]">-</span>
                             <span>Account</span>
+                            <span className="text-[#c3c4ca]">-</span>
+                            <Link href={route('admin.roles.index')} className="hover:text-[#673ab7] transition-colors font-medium">Roles</Link>
                             <span className="text-[#c3c4ca]">-</span>
                             <span>Edit Role</span>
                         </div>
@@ -76,7 +78,7 @@ export default function Edit({ role, permissions }) {
                         </div>
 
                         <div className="p-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-1 gap-y-6">
                                 {/* Role Name */}
                                 <div className="space-y-2">
                                     <label className="text-[14px] font-bold text-[#2f3344]">
@@ -118,8 +120,21 @@ export default function Edit({ role, permissions }) {
                         </div>
 
                         <div className="p-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {Object.entries(permissions).map(([category, categoryPermissions]) => (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                                {(() => {
+                                    // Handle both array (from simple .all()) or object (if grouped)
+                                    const flatPermissions = Array.isArray(permissions) 
+                                        ? permissions 
+                                        : Object.values(permissions).flat();
+
+                                    const grouped = {};
+                                    flatPermissions.forEach(p => {
+                                        const group = p.name.includes('.') ? p.name.split('.')[0] : 'General';
+                                        if (!grouped[group]) grouped[group] = [];
+                                        grouped[group].push(p);
+                                    });
+
+                                    return Object.entries(grouped).map(([category, categoryPermissions]) => (
                                     <div key={category} className="space-y-4">
                                         <div className="flex items-center justify-between border-b pb-2 border-[#f1f2f4]">
                                             <h3 className="text-[15px] font-bold text-[#2f3344] capitalize">{category || 'General'}</h3>
@@ -155,7 +170,8 @@ export default function Edit({ role, permissions }) {
                                             ))}
                                         </div>
                                     </div>
-                                ))}
+                                    ));
+                                })()}
                             </div>
                         </div>
 
@@ -164,7 +180,7 @@ export default function Edit({ role, permissions }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="bg-[#2c8af8] text-white px-[40px] py-[12px] rounded-[6px] font-bold text-[14px] hover:bg-[#1a7ae8] transition-all shadow-sm active:scale-[0.98] disabled:opacity-50"
+                                className="bg-[#673ab7] text-white px-[40px] py-[12px] rounded-[6px] font-bold text-[14px] hover:bg-[#5e35b1] transition-all shadow-sm active:scale-[0.98] disabled:opacity-50"
                             >
                                 {processing ? 'Updating...' : 'Save Role & Permissions'}
                             </button>

@@ -44,34 +44,6 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
 
     const menuGroups = [
         {
-            title: "Pages",
-            items: [
-                { label: "Profile", path: "/profile", icon: <User />, route: "profile.*" },
-                { 
-                    label: "Authentication", 
-                    icon: <ShieldCheck />, 
-                    key: "auth",
-                    children: [
-                        { label: "Login", path: "/login" },
-                        { label: "Register", path: "/register" },
-                    ]
-                },
-                { 
-                    label: "Error Pages", 
-                    icon: <Mail />, 
-                    key: "errors",
-                    children: [
-                        { label: "404", path: "/404" },
-                        { label: "500", path: "/500" },
-                    ]
-                },
-                { label: "Blank Page", path: "/blank", icon: <Mail />, route: "blank" },
-                { label: "Pricing", path: "/pricing", icon: <DollarSign />, route: "pricing" },
-                { label: "Coming Soon", path: "/coming-soon", icon: <Mail />, route: "coming-soon" },
-                { label: "Under Maintenance", path: "/maintenance", icon: <Mail />, route: "maintenance" },
-            ]
-        },
-        {
             title: "Settings",
             items: [
                 { 
@@ -137,20 +109,6 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
 
     const legacyMenuItems = [
         { label: "Home", path: "/dashboard", icon: <Home />, route: "dashboard" },
-        { label: "Websites", path: "/admin/websites", icon: <LayoutGrid />, route: "websites.*" },
-        { label: "Domains", path: "/admin/domains", icon: <Globe />, route: "domains.*" },
-        { label: "Horizons", path: "/admin/horizons", icon: <Waves />, route: "horizons.*" },
-        { label: "Emails", path: "/admin/emails", icon: <Mail />, route: "emails.*" },
-        { label: "VPS", path: "/admin/vps", icon: <Cloud />, route: "vps.*" },
-        { 
-            label: "Billing", 
-            icon: <CreditCard />, 
-            key: "billing",
-            children: [
-                { label: "Invoices", path: "/admin/billing/invoices", icon: <CreditCard size={16} /> },
-                { label: "Payment Methods", path: "/admin/billing/methods", icon: <DollarSign size={16} /> },
-            ]
-        },
         { 
             label: "Content", 
             icon: <LayoutGrid />, 
@@ -158,7 +116,6 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
             children: [
                 { label: "Categories", path: "/admin/categories", icon: <LayoutGrid size={16} />, route: "admin.categories.*", permission: "categories.view" },
                 { label: "Subcategories", path: "/admin/sub-categories", icon: <FolderTree size={16} />, route: "admin.sub-categories.*", permission: "categories.view" },
-                { label: "Blogs", path: "/admin/blogs", icon: <Mail size={16} />, route: "admin.blogs.*", permission: "blogs.view" },
             ]
         },
         { 
@@ -167,11 +124,10 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
             key: "account",
             children: [
                 { label: "Users", path: "/admin/users", icon: <Users size={16} />, route: "admin.users.*", permission: "users.view" },
-                { label: "Account Sharing", path: "/admin/roles", icon: <ShieldCheck size={16} />, route: "admin.roles.*", permission: "roles.view" },
+                { label: "Roles", path: "/admin/roles", icon: <ShieldCheck size={16} />, route: "admin.roles.*", permission: "roles.view" },
                 { label: "Permissions", path: "/admin/permissions", icon: <ShieldCheck size={16} />, route: "admin.permissions.*", permission: "permissions.view" },
             ]
         },
-        { label: "All services", path: "/admin/services", icon: <Store />, route: "services.*" },
     ];
 
     const hasPermission = (permission) => {
@@ -211,18 +167,23 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
         
         const content = (
             <>
+                {/* Active Indicator Bar */}
+                {!isCollapsed && active && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-md bg-[#0a66c2]" />
+                )}
+
                 {/* Icon */}
                 <div className={`${isCollapsed ? 'mb-1' : 'mr-3'} transition-transform duration-200 group-hover:scale-110 ${active || isOpen ? 'text-[#0a66c2]' : 'text-slate-400 group-hover:text-[#0a66c2]'}`}>
                     {React.cloneElement(item.icon, { 
                         size: isCollapsed ? 24 : 18, 
-                        strokeWidth: active || isOpen ? 2 : 1.5 
+                        strokeWidth: active || isOpen ? 2.5 : 1.5 
                     })}
                 </div>
 
                 {/* Label */}
                 {!isCollapsed && (
-                    <span className={`font-medium leading-tight transition-all duration-300 text-[14px] flex-1 text-left
-                        ${active || isOpen ? 'text-[#0a66c2]' : 'text-slate-600'}`}>
+                    <span className={`leading-tight transition-all duration-300 text-[14px] flex-1 text-left
+                        ${active || isOpen ? 'text-[#0a66c2] font-bold' : 'text-slate-600 font-medium'}`}>
                         {item.label}
                     </span>
                 )}
@@ -254,7 +215,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
                                 ? 'flex-col items-center justify-center py-4 px-1' 
                                 : 'flex-row items-center py-2.5 px-4'}
                             ${active || isOpen
-                                ? 'bg-[#0a66c2]/5 text-[#0a66c2]' 
+                                ? 'bg-gradient-to-r from-[#0a66c2]/10 via-[#0a66c2]/5 to-transparent text-[#0a66c2]' 
                                 : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
                     >
                         {content}
@@ -267,13 +228,18 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
                                 <Link
                                     key={child.label}
                                     href={child.path}
-                                    className={`flex items-center gap-3 py-2 px-3 rounded-lg text-[13px] transition-all hover:bg-slate-50
-                                        ${(currentPath === child.path || (child.route && typeof route !== 'undefined' && route().current(child.route))) ? 'text-[#0a66c2] bg-[#0a66c2]/5 font-semibold' : 'text-slate-500'}`}
+                                    className={`flex items-center gap-3 py-2 px-3 rounded-lg text-[13px] transition-all hover:bg-slate-50 relative overflow-hidden
+                                        ${(currentPath === child.path || (child.route && typeof route !== 'undefined' && route().current(child.route))) 
+                                            ? 'text-[#0a66c2] bg-[#0a66c2]/5 font-bold' 
+                                            : 'text-slate-500 hover:text-slate-900'}`}
                                 >
+                                    {(currentPath === child.path || (child.route && typeof route !== 'undefined' && route().current(child.route))) && (
+                                        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-0.5 rounded-r bg-[#0a66c2]" />
+                                    )}
                                     {child.icon ? (
                                         React.cloneElement(child.icon, { size: 14 })
                                     ) : (
-                                        <div className={`w-1 h-1 rounded-full ${currentPath === child.path ? 'bg-[#0a66c2]' : 'bg-slate-300'}`} />
+                                        <div className={`w-1.5 h-1.5 rounded-full ${(currentPath === child.path || (child.route && typeof route !== 'undefined' && route().current(child.route))) ? 'bg-[#0a66c2]' : 'bg-slate-300'}`} />
                                     )}
                                     <span>{child.label}</span>
                                 </Link>
@@ -296,7 +262,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
                             ? 'flex-col items-center justify-center py-4 px-1' 
                             : 'flex-row items-center py-2.5 px-4'}
                         ${active 
-                            ? 'bg-[#0a66c2]/5 text-[#0a66c2]' 
+                            ? 'bg-gradient-to-r from-[#0a66c2]/10 via-[#0a66c2]/5 to-transparent text-[#0a66c2]' 
                             : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
                 >
                     {content}
@@ -313,7 +279,7 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
                         ? 'flex-col items-center justify-center py-4 px-1' 
                         : 'flex-row items-center py-2.5 px-4'}
                     ${active 
-                        ? 'bg-[#0a66c2]/5 text-[#0a66c2]' 
+                        ? 'bg-gradient-to-r from-[#0a66c2]/10 via-[#0a66c2]/5 to-transparent text-[#0a66c2]' 
                         : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'}`}
             >
                 {content}

@@ -24,9 +24,11 @@ export default function Create() {
                     <div className="flex items-center gap-4">
                         <h1 className="text-[24px] font-bold text-[#2f3344] tracking-tight">Roles</h1>
                         <div className="flex items-center gap-2 text-[13px] text-[#727586] mt-1">
-                            <Home size={16} />
+                            <Link href={route('dashboard')} className="hover:text-[#673ab7] transition-colors"><Home size={16} /></Link>
                             <span className="text-[#c3c4ca]">-</span>
-                            <span>Account Sharing</span>
+                            <span>Account</span>
+                            <span className="text-[#c3c4ca]">-</span>
+                            <Link href={route('admin.roles.index')} className="hover:text-[#673ab7] transition-colors font-medium">Roles</Link>
                             <span className="text-[#c3c4ca]">-</span>
                             <span>Create Role</span>
                         </div>

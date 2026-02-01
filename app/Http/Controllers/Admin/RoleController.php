@@ -52,7 +52,7 @@ class RoleController extends Controller
     {
         return Inertia::render('Admin/Roles/Edit', [
             'role' => $role->load('permissions'),
-            'permissions' => \Spatie\Permission\Models\Permission::all()->groupBy('category'),
+            'permissions' => \Spatie\Permission\Models\Permission::all(),
         ]);
     }
 

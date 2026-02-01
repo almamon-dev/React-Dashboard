@@ -187,7 +187,6 @@ export default function Notifications() {
                                             <option>Desktop Browser Only</option>
                                             <option>Mobile App Only</option>
                                         </select>
-                                       
                                     </div>
                                 </div>
                             </div>

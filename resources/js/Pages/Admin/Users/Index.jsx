@@ -3,9 +3,12 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { Home, Search, Plus, MoreVertical, Check, Trash2, User as UserIcon, Mail, Shield } from 'lucide-react';
 
+import DeleteModal from '@/Components/Admin/DeleteModal';
+
 export default function Index({ users, filters, auth }) {
     const [search, setSearch] = useState(filters.search || '');
     const [selectedIds, setSelectedIds] = useState([]);
+    const [deleteState, setDeleteState] = useState({ isOpen: false, id: null });
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -29,9 +32,13 @@ export default function Index({ users, filters, auth }) {
     };
 
     const handleDelete = (id) => {
-        if (confirm('Are you sure you want to delete this user?')) {
-            router.delete(route('admin.users.destroy', id));
-        }
+        setDeleteState({ isOpen: true, id });
+    };
+
+    const confirmDelete = () => {
+        router.delete(route('admin.users.destroy', deleteState.id), {
+            onSuccess: () => setDeleteState({ isOpen: false, id: null }),
+        });
     };
 
     return (
@@ -51,6 +58,15 @@ export default function Index({ users, filters, auth }) {
                             <span>Users</span>
                         </div>
                     </div>
+                    {auth.user.permissions.includes('users.create') && (
+                        <Link
+                            href={route('admin.users.create')}
+                            className="flex items-center gap-2 bg-[#673ab7] text-white px-5 py-2.5 rounded-[8px] font-bold text-[14px] hover:bg-[#5b32a3] transition-all shadow-sm active:scale-95"
+                        >
+                            <Plus size={18} strokeWidth={2.5} />
+                            <span>Create User</span>
+                        </Link>
+                    )}
                 </div>
 
                 {/* Main Content Card */}
@@ -182,6 +198,14 @@ export default function Index({ users, filters, auth }) {
                         </table>
                     </div>
                 </div>
+
+                <DeleteModal
+                    isOpen={deleteState.isOpen}
+                    onClose={() => setDeleteState({ isOpen: false, id: null })}
+                    onConfirm={confirmDelete}
+                    title="Delete User"
+                    message="Are you sure you want to delete this user? This action cannot be undone."
+                />
             </div>
         </AdminLayout>
     );

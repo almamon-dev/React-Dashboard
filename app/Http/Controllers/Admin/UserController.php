@@ -31,12 +31,47 @@ class UserController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        return Inertia::render('Admin/Users/Create', [
+            'roles' => Role::all(),
+            'permissions' => Permission::all(),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'roles' => 'nullable|array',
+            'permissions' => 'nullable|array',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+        ]);
+
+        if ($request->has('roles')) {
+            $user->syncRoles($request->roles);
+        }
+
+        if ($request->has('permissions')) {
+            $user->syncPermissions($request->permissions);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+    }
+
     public function edit(User $user)
     {
         return Inertia::render('Admin/Users/Edit', [
             'user' => $user->load(['roles', 'permissions']),
             'roles' => Role::all(),
-            'permissions' => Permission::all()->groupBy('category'),
+            'permissions' => Permission::all(),
         ]);
     }
 

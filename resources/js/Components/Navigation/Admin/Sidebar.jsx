@@ -68,7 +68,6 @@ const Sidebar = ({ isCollapsed, toggleCollapse }) => {
                         { label: "Preference", path: route('admin.settings.website.preference') },
                         { label: "Appearance", path: route('admin.settings.website.appearance') },
                         { label: "Social Authentication", path: route('admin.settings.website.social-auth') },
-                        { label: "Language", path: route('admin.settings.website.language') },
                     ]
                 },
                 { 

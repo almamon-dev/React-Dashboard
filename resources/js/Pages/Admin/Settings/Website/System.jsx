@@ -163,7 +163,13 @@ export default function WebsiteSystem() {
                                     <div>
                                         <h4 className="text-[15px] font-bold text-[#2f3344] capitalize">{type.replace('_', ' ')}</h4>
                                         <p className="text-[12px] text-[#727586] mt-1">
-                                            {type === 'logo' ? 'Visible on login/sidebar.' : type === 'favicon' ? 'Browser tab icon.' : 'Social share preview.'}
+                                            {type === 'logo' ? (
+                                                <>Visible on login/sidebar. <span className="text-[#673ab7] font-bold">Rec: 200x50px</span></>
+                                            ) : type === 'favicon' ? (
+                                                <>Browser tab icon. <span className="text-[#673ab7] font-bold">Rec: 32x32px</span></>
+                                            ) : (
+                                                <>Social share preview. <span className="text-[#673ab7] font-bold">Rec: 1200x630px</span></>
+                                            )}
                                         </p>
                                     </div>
                                     <input 

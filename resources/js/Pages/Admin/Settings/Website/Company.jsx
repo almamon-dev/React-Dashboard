@@ -1,23 +1,61 @@
 import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head } from '@inertiajs/react';
-import { Building2, Mail, Phone, Globe, MapPin, Hash, Briefcase, Clock, Home, Save, CheckCircle2 } from 'lucide-react';
+import { Building2, Mail, Phone, Globe, MapPin, Hash, Briefcase, Clock, Home, Save, CheckCircle2, ChevronDown, Calendar, Trash2 } from 'lucide-react';
 
 export default function CompanySettings() {
+    const DAYS = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const TIMES = [
+        '08:00 AM', '08:30 AM', '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
+        '12:00 PM', '12:30 PM', '01:00 PM', '01:30 PM', '02:00 PM', '02:30 PM', '03:00 PM', '03:30 PM',
+        '04:00 PM', '04:30 PM', '05:00 PM', '05:30 PM', '06:00 PM', '06:30 PM', '07:00 PM', '07:30 PM',
+        '08:00 PM', '08:30 PM', '09:00 PM', '09:30 PM', '10:00 PM'
+    ];
+
     const [formData, setFormData] = useState({
         company_name: 'Almamon Softwares Ltd.',
         legal_name: 'Almamon Tech Solutions Inc.',
+        established_since: '2020-01-01',
         company_email: 'hello@almamon.dev',
         company_phone: '+880 1234 567 890',
         registration_no: 'REG-2026-X990',
         tax_id: 'TAX-8822-001',
         website: 'https://almamon.dev',
         address: '123 Tech Square, Digital City, Dhaka, Bangladesh',
+        is_operating_active: true,
+        business_hours: [
+            { from_day: 'Saturday', to_day: 'Thursday', start_time: '09:00 AM', end_time: '06:00 PM', status: 'Open' },
+            { from_day: 'Friday', to_day: 'Friday', start_time: '-', end_time: '-', status: 'Closed' }
+        ]
     });
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleBusinessHourChange = (index, field, value) => {
+        const newHours = [...formData.business_hours];
+        newHours[index][field] = value;
+        setFormData(prev => ({ ...prev, business_hours: newHours }));
+    };
+
+    const toggleOperatingStatus = () => {
+        setFormData(prev => ({ ...prev, is_operating_active: !prev.is_operating_active }));
+    };
+
+    const addBusinessHourRange = () => {
+        setFormData(prev => ({
+            ...prev,
+            business_hours: [...prev.business_hours, { from_day: 'Saturday', to_day: 'Thursday', start_time: '09:00 AM', end_time: '06:00 PM', status: 'Open' }]
+        }));
+    };
+
+    const removeBusinessHourRange = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            business_hours: prev.business_hours.filter((_, i) => i !== index)
+        }));
     };
 
     const handleSubmit = (e) => {
@@ -64,7 +102,7 @@ export default function CompanySettings() {
                     </div>
 
                     <div className="p-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
                             <div className="space-y-2">
                                 <label className="text-[14px] font-bold text-[#2f3344]">Display Name</label>
                                 <input 
@@ -84,6 +122,19 @@ export default function CompanySettings() {
                                     onChange={handleInputChange}
                                     className="w-full h-[45px] px-4 bg-white border border-[#e3e4e8] rounded-[6px] text-[14px] text-[#2f3344] focus:outline-none focus:border-[#673ab7] transition-all"
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[14px] font-bold text-[#2f3344]">Established Date (Start Date)</label>
+                                <div className="relative">
+                                    <input 
+                                        name="established_since"
+                                        type="date" 
+                                        value={formData.established_since}
+                                        onChange={handleInputChange}
+                                        className="w-full h-[45px] pl-11 pr-4 bg-white border border-[#e3e4e8] rounded-[6px] text-[14px] text-[#2f3344] focus:outline-none focus:border-[#673ab7] transition-all"
+                                    />
+                                    <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a0a3af]" />
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[14px] font-bold text-[#2f3344]">Registration Number</label>
@@ -109,6 +160,19 @@ export default function CompanySettings() {
                                         className="w-full h-[45px] pl-11 pr-4 bg-white border border-[#e3e4e8] rounded-[6px] text-[14px] text-[#2f3344] focus:outline-none focus:border-[#673ab7] transition-all"
                                     />
                                     <Hash size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a0a3af]" />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[14px] font-bold text-[#2f3344]">Website</label>
+                                <div className="relative">
+                                    <input 
+                                        name="website"
+                                        type="text" 
+                                        value={formData.website}
+                                        onChange={handleInputChange}
+                                        className="w-full h-[45px] pl-11 pr-4 bg-white border border-[#e3e4e8] rounded-[6px] text-[14px] text-[#2f3344] focus:outline-none focus:border-[#673ab7] transition-all"
+                                    />
+                                    <Globe size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a0a3af]" />
                                 </div>
                             </div>
                         </div>
@@ -168,35 +232,131 @@ export default function CompanySettings() {
                     </div>
                 </div>
 
-                {/* Business Hours Section (Bonus) */}
+                {/* Business Hours Section (Professional Scheduler) */}
                 <div className="bg-white rounded-[10px] border border-[#e3e4e8] shadow-sm overflow-hidden">
-                    <div className="px-7 py-5 border-b border-[#e3e4e8]">
+                    <div className="px-7 py-5 border-b border-[#e3e4e8] flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Clock size={20} className="text-[#673ab7]" />
-                            <h2 className="text-[18px] font-bold text-[#2f3344]">Business Hours</h2>
+                            <h2 className="text-[18px] font-bold text-[#2f3344]">Business Hours Schedule</h2>
                         </div>
+                        <button 
+                            type="button"
+                            onClick={addBusinessHourRange}
+                            className="text-[13px] font-bold text-[#673ab7] bg-[#f4f0ff] px-4 py-2 rounded-[6px] hover:bg-[#673ab7] hover:text-white transition-all shadow-sm flex items-center gap-2 border border-[#673ab7]/10"
+                        >
+                            + Add New Schedule
+                        </button>
                     </div>
 
                     <div className="p-8">
-                        <div className="flex items-center justify-between p-6 bg-[#fafbfc] rounded-[10px] border border-[#e3e4e8]">
+                        {/* Live Status Toggle */}
+                        <div className="flex items-center justify-between p-5 bg-[#fafbfc] rounded-[10px] border border-[#e3e4e8] mb-8">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 bg-white rounded-lg border border-[#e3e4e8] flex items-center justify-center text-[#673ab7]">
                                     <CheckCircle2 size={20} />
                                 </div>
                                 <div>
-                                    <h4 className="text-[15px] font-bold text-[#2f3344]">Active Operating Status</h4>
-                                    <p className="text-[13px] text-[#727586] mt-0.5">Show "Currently Open" badge on your website frontend.</p>
+                                    <h4 className="text-[15px] font-bold text-[#2f3344]">Live Storefront Status</h4>
+                                    <p className="text-[13px] text-[#727586] mt-0.5">Toggle real-time "Open/Closed" indicator for users.</p>
                                 </div>
                             </div>
-                            <div className="w-12 h-6 bg-[#673ab7] rounded-full relative cursor-pointer group">
-                                <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all group-hover:scale-110"></div>
+                            <div 
+                                onClick={toggleOperatingStatus}
+                                className={`w-12 h-6 rounded-full relative cursor-pointer group transition-all duration-300 ${formData.is_operating_active ? 'bg-[#673ab7]' : 'bg-[#e3e4e8]'}`}
+                            >
+                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-300 ${formData.is_operating_active ? 'right-1' : 'left-1'}`}></div>
                             </div>
                         </div>
 
-                        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {['Sat - Thu', '9:00 AM - 6:00 PM', 'Friday', 'Closed'].map((text, idx) => (
-                                <div key={idx} className="p-4 bg-white border border-[#e3e4e8] rounded-[6px]">
-                                    <p className={`text-[13px] ${idx % 2 === 0 ? 'font-bold text-[#2f3344]' : 'text-[#727586]'}`}>{text}</p>
+                        {/* Schedule List */}
+                        <div className="space-y-4">
+                            {formData.business_hours.map((item, idx) => (
+                                <div key={idx} className="flex gap-4 items-end p-5 bg-white border border-[#e3e4e8] rounded-[10px] relative group hover:border-[#673ab7]/30 transition-all">
+                                    <div className="flex-1 min-w-[180px] space-y-2">
+                                        <label className="text-[11px] font-bold text-[#a0a3af] uppercase tracking-wider">From Day</label>
+                                        <div className="relative">
+                                            <select 
+                                                value={item.from_day}
+                                                onChange={(e) => handleBusinessHourChange(idx, 'from_day', e.target.value)}
+                                                className="w-full h-[45px] pl-4 pr-10 bg-[#fafbfc] border border-[#e3e4e8] rounded-[6px] text-[14px] text-[#2f3344] focus:outline-none focus:border-[#673ab7] transition-all appearance-none cursor-pointer"
+                                            >
+                                                {DAYS.map(day => <option key={day} value={day}>{day}</option>)}
+                                            </select>
+                                           
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 min-w-[180px] space-y-2">
+                                        <label className="text-[11px] font-bold text-[#a0a3af] uppercase tracking-wider">To Day</label>
+                                        <div className="relative">
+                                            <select 
+                                                value={item.to_day}
+                                                onChange={(e) => handleBusinessHourChange(idx, 'to_day', e.target.value)}
+                                                className="w-full h-[45px] pl-4 pr-10 bg-[#fafbfc] border border-[#e3e4e8] rounded-[6px] text-[14px] text-[#2f3344] focus:outline-none focus:border-[#673ab7] transition-all appearance-none cursor-pointer"
+                                            >
+                                                {DAYS.map(day => <option key={day} value={day}>{day}</option>)}
+                                            </select>
+                                           
+                                        </div>
+                                    </div>
+
+                                    <div className="w-[140px] space-y-2">
+                                        <label className="text-[11px] font-bold text-[#a0a3af] uppercase tracking-wider">Start Time</label>
+                                        <div className="relative">
+                                            <select 
+                                                value={item.start_time}
+                                                disabled={item.status === 'Closed'}
+                                                onChange={(e) => handleBusinessHourChange(idx, 'start_time', e.target.value)}
+                                                className={`w-full h-[45px] pl-4 pr-10 border border-[#e3e4e8] rounded-[6px] text-[14px] text-[#2f3344] focus:outline-none focus:border-[#673ab7] transition-all appearance-none cursor-pointer ${item.status === 'Closed' ? 'bg-[#f4f7f9] text-[#a0a3af]' : 'bg-white'}`}
+                                            >
+                                                <option value="-">-</option>
+                                                {TIMES.map(t => <option key={t} value={t}>{t}</option>)}
+                                            </select>
+                                           
+                                        </div>
+                                    </div>
+
+                                    <div className="w-[140px] space-y-2">
+                                        <label className="text-[11px] font-bold text-[#a0a3af] uppercase tracking-wider">End Time</label>
+                                        <div className="relative">
+                                            <select 
+                                                value={item.end_time}
+                                                disabled={item.status === 'Closed'}
+                                                onChange={(e) => handleBusinessHourChange(idx, 'end_time', e.target.value)}
+                                                className={`w-full h-[45px] pl-4 pr-10 border border-[#e3e4e8] rounded-[6px] text-[14px] text-[#2f3344] focus:outline-none focus:border-[#673ab7] transition-all appearance-none cursor-pointer ${item.status === 'Closed' ? 'bg-[#f4f7f9] text-[#a0a3af]' : 'bg-white'}`}
+                                            >
+                                                <option value="-">-</option>
+                                                {TIMES.map(t => <option key={t} value={t}>{t}</option>)}
+                                            </select>
+                                           
+                                        </div>
+                                    </div>
+
+                                    <div className="w-[120px] space-y-2">
+                                        <label className="text-[11px] font-bold text-[#a0a3af] uppercase tracking-wider">Status</label>
+                                        <div className="relative">
+                                            <select 
+                                                value={item.status}
+                                                onChange={(e) => handleBusinessHourChange(idx, 'status', e.target.value)}
+                                                className={`w-full h-[45px] pl-4 pr-10 border rounded-[6px] text-[13px] font-bold focus:outline-none transition-all appearance-none cursor-pointer ${item.status === 'Open' ? 'text-[#00b090] bg-[#00b090]/5 border-[#00b090]/10' : 'text-[#f43f5e] bg-[#f43f5e]/5 border-[#f43f5e]/10'}`}
+                                            >
+                                                <option value="Open">Open</option>
+                                                <option value="Closed">Closed</option>
+                                            </select>
+                                            <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0a3af] pointer-events-none" />
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-[2px]">
+                                        <button 
+                                            type="button"
+                                            onClick={() => removeBusinessHourRange(idx)}
+                                            className={`w-[42px] h-[42px] flex items-center justify-center rounded-[6px] bg-[#f43f5e]/5 text-[#f43f5e] hover:bg-[#f43f5e] hover:text-white transition-all ${formData.business_hours.length === 1 ? 'opacity-30 cursor-not-allowed' : ''}`}
+                                            disabled={formData.business_hours.length === 1}
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>

@@ -48,11 +48,10 @@ Route::middleware('auth')->group(function () {
                 Route::get('system', function () { return Inertia::render('Admin/Settings/Website/System'); })->name('system');
                 Route::get('company', function () { return Inertia::render('Admin/Settings/Website/Company'); })->name('company');
                 Route::get('localization', function () { return Inertia::render('Admin/Settings/Website/Localization'); })->name('localization');
-                Route::get('prefixes', function () { return Inertia::render('Admin/Settings/Placeholder', ['title' => 'Prefix Settings']); })->name('prefixes');
-                Route::get('preference', function () { return Inertia::render('Admin/Settings/Placeholder', ['title' => 'Preference Settings']); })->name('preference');
-                Route::get('appearance', function () { return Inertia::render('Admin/Settings/Placeholder', ['title' => 'Appearance Settings']); })->name('appearance');
-                Route::get('social-auth', function () { return Inertia::render('Admin/Settings/Placeholder', ['title' => 'Social Authentication']); })->name('social-auth');
-                Route::get('language', function () { return Inertia::render('Admin/Settings/Placeholder', ['title' => 'Language Settings']); })->name('language');
+                Route::get('prefixes', function () { return Inertia::render('Admin/Settings/Website/Prefixes'); })->name('prefixes');
+                Route::get('preference', function () { return Inertia::render('Admin/Settings/Website/Preference'); })->name('preference');
+                Route::get('appearance', function () { return Inertia::render('Admin/Settings/Website/Appearance'); })->name('appearance');
+                Route::get('social-auth', function () { return Inertia::render('Admin/Settings/Website/SocialAuthentication'); })->name('social-auth');
             });
 
             // System Settings
